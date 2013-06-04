@@ -72,7 +72,11 @@ class ReceiveThread(threading.Thread):
     def debug(self, msg):
         if self.config['debug']:
             msg = unicode(msg)
-            self.pull.put((None, u'DEBUG: ' + msg))
+            self.msg(None, u'DEBUG: ' + msg)
+
+    def msg(self, channel, text):
+        #place holder for logging
+        self.pull.put(channel, text)
 
     def run(self):
         while True:
