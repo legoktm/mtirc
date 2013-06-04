@@ -37,6 +37,9 @@ config = {
 
     # Whether to send debug information to the channel
     'debug': True,
+
+    # Memory allocations for grid engine
+    'memory': {},
 }
 
 # Change config via commandline
