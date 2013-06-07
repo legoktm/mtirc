@@ -1,17 +1,18 @@
 import os
 import sys
 
+import pinger
+
 config = {
 
     # Connection info
-    'network': 'card.freenode.net',
-    'port': 6667,  # For both networks
-    'channel': '##',  # On freenode
-    'chatter-channel': '##',
-
-    # RC feed info
-    'rc_network': 'irc.wikimedia.org',  # RC feed network
-    'rc_channel': ['#en.wikipedia'],
+    'connections': {'card.freenode.net': {'channels': [
+                                                       ],
+                                          },
+                    },
+    'port': 6667,  # For all networks
+    'default_network': 'card.freenode.net',
+    'default_channel': '##',  # On default_network
 
     # Identification info
     'nick': 'Forgot_to_set_nick',  # Both networks
@@ -40,6 +41,19 @@ config = {
 
     # Memory allocations for grid engine
     'memory': {},
+
+    # How many seconds to wait in between messages
+    'delay_time': 1,
+
+    # Allow for modules to be stored and run on hits.
+    # Modules should take **kwargs for best performance
+    'modules': {'pinger': pinger.run,
+                },
+
+    # After how many exceptions should modules be disabled
+    # If None, never disable modules
+    'disable_on_errors': 5,
+
 }
 
 # Change config via commandline

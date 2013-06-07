@@ -28,6 +28,8 @@ import time
 import traceback
 import Queue
 
+import cache
+
 # The following regexes are from bjweeks' & MZMcBride's snitch.py
 # which is public domain
 COLOR_RE = re.compile(r'(?:\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?)')
@@ -59,15 +61,42 @@ def parse_edit(msg):
 
 
 class ReceiveThread(threading.Thread):
-    def __init__(self, queue, pull, config):
+    def __init__(self, bot):
         threading.Thread.__init__(self)
-        self.queue = queue
-        self.pull = pull
-        self.config = config
+        self.bot = bot
+        self.queue = bot.push
+        self.pull = bot.pull
+        self.config = bot.config
 
-    def parse(self, channel, text, sender):
+    def parse(self, channel, text, sender, server):
         #This should be sub-classed
-        pass
+        for name in self.bot.config['modules']:
+            try:
+                cont = self.bot.config['modules'][name](channel=channel,
+                                                        text=text,
+                                                        sender=sender,
+                                                        server=server,
+                                                        bot=self.bot,
+                                                        )
+                if not cont:
+                    break
+            except:
+                traceback.print_exc()
+                #now we need to track how many times its died
+                if self.config['disable_on_errors']:
+                    if name in self.bot.cache['errors']:
+                        count = self.bot.cache['errors'][name]
+                        count += 1
+                        if count >= self.config['disable_on_errors']:
+                            del self.bot.config['modules'][name]
+                            self.debug('The {0} module was disabled due to {1} errors.'.format(
+                                name, count
+                            ))
+                        else:
+                            self.bot.cache['errors'][name] = count
+                    else:
+                        self.bot.cache['errors'][name] = 1
+
 
     def debug(self, msg):
         if self.config['debug']:
@@ -80,35 +109,41 @@ class ReceiveThread(threading.Thread):
 
     def run(self):
         while True:
-            channel, text, sender = self.queue.get()
+            channel, text, sender, server = self.queue.get()
             try:
-                self.parse(channel, text, sender)
+                self.parse(channel, text, sender, server)
             except:
                 traceback.print_exc()
             self.queue.task_done()
 
 
 class Bot:
-    def __init__(self, push, pull, rcv, config, use_rc=True):
+    def __init__(self, config):
         self.irc = irclib.IRC()
-        self.push = push  # Queue for incoming messages
-        self.pull = pull  # Queue for outgoing messages
-        self.rcv = rcv  # Thread class to parse incoming messages
+        self.push = Queue.Queue()  # Queue for incoming messages
+        self.pull = Queue.Queue()  # Queue for outgoing messages
         self.delay = 0  # When the last message was sent to the server
-        self.delayTime = 1  # How long to wait in between sending
-        self.use_rc = use_rc  # Whether to connect to the RC feed.
         self.config = config
+        self.delayTime = self.config['delay_time']
+        self.cache = cache.Cache(self.config)
+        self.init_cache()
+
+    def init_cache(self):
+        self.cache['errors'] = {}
 
     def on_msg(self, c, e):
         #print e.type
         #print e.arguments
         #print e.source
         #print e.target
-        self.msg(e.target, e.arguments[0], e.source)
+        self.msg(e.target, e.arguments[0], e.source, c.server)
 
-    def msg(self, channel, text, sender):
+    def msg(self, channel, text, sender, server):
         #this is mainly a placeholder for other things
-        self.push.put((channel, text, sender))
+        self.push.put((channel, text, sender, server))
+
+    def queue_msg(self, channel, text):
+        self.pull.put((channel, text))
 
     def send_msg(self, channel, text):
         try:
@@ -118,18 +153,18 @@ class Bot:
 
     def _send_msg(self, channel, text):
         if not channel:
-            channel = self.config['channel']
+            channel = self.config['default_channel']
         d = time.time()
         if d - self.delay < self.delayTime:
             time.sleep(self.delayTime - (d - self.delay))
         self.delay = d
         if not isinstance(text, basestring):
             text = unicode(text)
-        self.freenode.privmsg(channel, text)
+        self.servers[self.config['default_network']].privmsg(channel, text)
 
     def get_version(self):
         # This should be improved
-        return "mtirc v1.0.0"
+        return "mtirc v0.2.0"
 
     def on_ctcp(self, c, e):
         """Default handler for ctcp events.
@@ -145,31 +180,28 @@ class Bot:
                 c.ctcp_reply(nick, "PING " + e.arguments[1])
 
     def on_disconnect(self, c, e):
-        if c == self.freenode:
-            self.connect_freenode()
-        elif c == self.rcfeed:
-            self.connect_rcfeed()
-        else:
-            print 'omg i got dq\'d but dont know which server it was'
+        self.connect_to_server(c.server)
 
     def auth(self):
         self.send_msg('nickserv', 'identify {0} {1}'.format(self.config['ns_username'], self.config['ns_pw']))
 
-    def connect_freenode(self):
-        self.freenode.connect(self.config['network'], self.config['port'], self.config['nick'], self.config['name'])
-        if self.config['authenticate']:
+    def connect_to_server(self, server):
+        d = self.config['connections'][server]
+        self.servers[server] = self.irc.server()
+        self.servers[server].connect(server,
+                                     d.get('port', self.config['port']),
+                                     d.get('nick', self.config['nick']),
+                                     d.get('name', self.config['name']),
+                                     )
+        if d.get('authenticate', self.config['authenticate']):
             self.auth()
-        self.freenode.join(self.config['chatter-channel'])
-        self.freenode.join(self.config['channel'])
-
-    def connect_rcfeed(self):
-        self.rcfeed.connect(self.config['rc_network'], self.config['port'], self.config['nick'], self.config['name'])
-        for channel in self.config['rc_channel']:
-            self.rcfeed.join(channel)
+        if 'channels' in d:
+            for channel in d['channels']:
+                self.servers[server].join(channel)
 
     def run(self):
         for i in range(0, self.config['threads']):
-            t = self.rcv(self.push, self.pull, self.config)
+            t = ReceiveThread(self)
             t.setDaemon(True)
             t.start()
 
@@ -178,13 +210,9 @@ class Bot:
         self.irc.add_global_handler('ctcp', self.on_ctcp)
         self.irc.add_global_handler('disconnect', self.on_disconnect)
 
-
-        self.freenode = self.irc.server()
-        self.connect_freenode()
-
-        if self.use_rc:
-            self.rcfeed = self.irc.server()
-            self.connect_rcfeed()
+        self.servers = {}
+        for server in self.config['connections']:
+            self.connect_to_server(server)
 
         while True:
             self.irc.process_once(timeout=0.1)
@@ -193,3 +221,4 @@ class Bot:
                 self.send_msg(channel, text)
             except Queue.Empty:
                 pass
+
