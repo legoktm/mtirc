@@ -65,11 +65,6 @@ if '--file-cache' in sys.argv:
 if '--memcache' in sys.argv:
     config['use_memcache'] = True
 
-if os.path.exists(os.path.expanduser('~/localsettings.py')):
-    sys.path.append(os.path.expanduser('~'))
-    ls = __import__('localsettings')
-    config = ls.update(config)
-
 if __name__ == '__main__':
     import simplejson as json
     print json.dumps(config, sort_keys=True, indent=4 * ' ')

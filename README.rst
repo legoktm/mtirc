@@ -41,8 +41,6 @@ Features
 
 * Will attempt to reconnect if disconnected
 
-* Reads from a configuration file at ``~/localsettings.py``
-
 * More to come!
 
 License
