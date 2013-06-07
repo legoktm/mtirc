@@ -10,7 +10,7 @@ An example bot would look like::
     from __future__ import unicode_literals
 
     from mtirc import bot
-    from mtirc import ettings
+    from mtirc import settings
 
     config = settings.config
     config['nick'] = 'nick'
