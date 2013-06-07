@@ -164,7 +164,7 @@ class Bot:
 
     def get_version(self):
         # This should be improved
-        return "mtirc v0.2.0"
+        return "mtirc v0.2.1"
 
     def on_ctcp(self, c, e):
         """Default handler for ctcp events.

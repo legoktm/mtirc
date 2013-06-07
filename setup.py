@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='mtirc',
-    version='0.2.0',
+    version='0.2.1',
     author='Kunal Mehta',
     author_email='legoktm@gmail.com',
     packages=['mtirc'],
