@@ -3,7 +3,7 @@ Multi-Threaded IRC bot
 ======================
 
 This is a multi-threaded IRC bot that was designed to connect to
-multiple networks load individual modules.
+multiple networks and load multiple modules.
 An example bot would look like::
 
     #!/usr/bin/env python
