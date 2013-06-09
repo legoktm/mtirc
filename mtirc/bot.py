@@ -182,8 +182,11 @@ class Bot:
     def on_disconnect(self, c, e):
         self.connect_to_server(c.server)
 
-    def auth(self):
-        self.send_msg('nickserv', 'identify {0} {1}'.format(self.config['ns_username'], self.config['ns_pw']))
+    def auth(self, server):
+        d = self.config['connections'][server]
+        username = d.get('ns_username', self.config['ns_username'])
+        pw = d.get('ns_pw', self.config['ns_pw'])
+        self.send_msg('nickserv', 'identify {0} {1}'.format(username, pw))
 
     def connect_to_server(self, server):
         d = self.config['connections'][server]
@@ -194,7 +197,7 @@ class Bot:
                                      d.get('name', self.config['name']),
                                      )
         if d.get('authenticate', self.config['authenticate']):
-            self.auth()
+            self.auth(server)
         if 'channels' in d:
             for channel in d['channels']:
                 self.servers[server].join(channel)
