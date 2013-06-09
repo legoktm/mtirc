@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-import cPickle
+
+from __future__ import print_function
+
+import sys
+import os
 try:
     import memcache
 except ImportError:
     memcache = False
-import os
-import sys
-
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 # The point of this module is so we can easily
 # transition between systems that have memcache
@@ -31,14 +36,14 @@ class Cache:
 
     def load(self):
         if os.path.exists(self.filename):
-            with open(self.filename, 'r') as f:
-                self.d = cPickle.load(f)
+            with open(self.filename) as f:
+                self.d = pickle.load(f)
         else:
             self.d = {}
 
     def save(self):
         with open(self.filename, 'w') as f:
-            cPickle.dump(self.d, f)
+           pickle.dump(self.d, f)
 
     def get(self, key):
         if self.use_mc:
@@ -77,4 +82,4 @@ if __name__ == "__main__":
     # for easy debugging:
     from mtirc import settings
     mc = Cache(settings.config)
-    print repr(mc[str(sys.argv[1])])
+    print(repr(mc[str(sys.argv[1])]))

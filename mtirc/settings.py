@@ -1,5 +1,6 @@
-import os
+from __future__ import print_function
 import sys
+import argparse
 
 import pinger
 
@@ -57,15 +58,25 @@ config = {
 }
 
 # Change config via commandline
-# TODO: Use ArgParse or something
-if '--debug' in sys.argv:
-    config['debug'] = True
-if '--file-cache' in sys.argv:
-    config['use_memcache'] = False
-if '--memcache' in sys.argv:
-    config['use_memcache'] = True
+parser = argparse.ArgumentParser()
+parser.add_argument("--debug",
+                    help="Make the bot spit out debug info",
+                    action="store_true")
+parser.add_argument("--file-cache",
+                    help="Do not use memcache",
+                    action="store_true")
+parser.add_argument("--memcache",
+                    help="Use memcache",
+                    action="store_true")
+
+args = parser.parse_args()
+config['debug'] = args.debug
+config['use_memcache'] = not args.file_cache
+config['use_memcache'] = args.memcache
 
 if __name__ == '__main__':
-    import simplejson as json
-    print json.dumps(config, sort_keys=True, indent=4 * ' ')
-
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
+    print(json.dumps(config, sort_keys=True, indent=4 * ' '))
