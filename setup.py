@@ -13,9 +13,11 @@ setup(
     install_requires=[
         "irc >= 8.3",
         "simplejson",
+        "six",
     ],
     classifiers=["Programming Language :: Python",
                  "Programming Language :: Python :: 2",
+                 "Programming Language :: Python :: 3",
                  "Development Status :: 2 - Pre-Alpha",
                  "Intended Audience :: Developers",
                  "Operating System :: OS Independent",

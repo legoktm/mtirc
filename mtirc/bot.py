@@ -21,14 +21,21 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
 
+from __future__ import unicode_literals
+
 import irc.client as irclib
 import re
 import threading
 import time
 import traceback
-import Queue
+try:
+    import Queue as queue
+except ImportError:
+    import queue
 
-import cache
+from six import u, string_types as stringthing
+
+from . import cache
 
 # The following regexes are from bjweeks' & MZMcBride's snitch.py
 # which is public domain
@@ -80,7 +87,7 @@ class ReceiveThread(threading.Thread):
                                                         )
                 if not cont:
                     break
-            except:
+            except Exception:
                 traceback.print_exc()
                 #now we need to track how many times its died
                 if self.config['disable_on_errors']:
@@ -100,8 +107,8 @@ class ReceiveThread(threading.Thread):
 
     def debug(self, msg):
         if self.config['debug']:
-            msg = unicode(msg)
-            self.msg(None, u'DEBUG: ' + msg)
+            msg = u(msg)
+            self.msg(None, 'DEBUG: ' + msg)
 
     def msg(self, channel, text):
         #place holder for logging
@@ -112,7 +119,7 @@ class ReceiveThread(threading.Thread):
             channel, text, sender, server = self.queue.get()
             try:
                 self.parse(channel, text, sender, server)
-            except:
+            except Exception:
                 traceback.print_exc()
             self.queue.task_done()
 
@@ -120,8 +127,8 @@ class ReceiveThread(threading.Thread):
 class Bot:
     def __init__(self, config):
         self.irc = irclib.IRC()
-        self.push = Queue.Queue()  # Queue for incoming messages
-        self.pull = Queue.Queue()  # Queue for outgoing messages
+        self.push = queue.Queue()  # Queue for incoming messages
+        self.pull = queue.Queue()  # Queue for outgoing messages
         self.delay = 0  # When the last message was sent to the server
         self.config = config
         self.delayTime = self.config['delay_time']
@@ -148,7 +155,7 @@ class Bot:
     def send_msg(self, channel, text):
         try:
             self._send_msg(channel, text)
-        except:
+        except Exception:
             traceback.print_exc()
 
     def _send_msg(self, channel, text):
@@ -158,8 +165,8 @@ class Bot:
         if d - self.delay < self.delayTime:
             time.sleep(self.delayTime - (d - self.delay))
         self.delay = d
-        if not isinstance(text, basestring):
-            text = unicode(text)
+        if not isinstance(text, stringthing):
+            text = u(text)
         self.servers[self.config['default_network']].privmsg(channel, text)
 
     def get_version(self):
@@ -219,6 +226,6 @@ class Bot:
             try:
                 channel, text = self.pull.get(block=False)
                 self.send_msg(channel, text)
-            except Queue.Empty:
+            except queue.Empty:
                 pass
 
