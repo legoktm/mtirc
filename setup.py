@@ -21,5 +21,6 @@ setup(
                  "Development Status :: 2 - Pre-Alpha",
                  "Intended Audience :: Developers",
                  "Operating System :: OS Independent",
-    ]
+    ],
+    test_suite='tests',
 )
