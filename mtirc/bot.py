@@ -35,7 +35,7 @@ except ImportError:
 
 from six import u, string_types as stringthing
 
-from . import cache
+from . import cache as ccache  # Naming conflict
 
 # The following regexes are from bjweeks' & MZMcBride's snitch.py
 # which is public domain
@@ -132,7 +132,7 @@ class Bot:
         self.delay = 0  # When the last message was sent to the server
         self.config = config
         self.delayTime = self.config['delay_time']
-        self.cache = cache.Cache(self.config)
+        self.cache = ccache.Cache(self.config)
         self.init_cache()
 
     def init_cache(self):
