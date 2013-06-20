@@ -41,6 +41,9 @@ class TestSequenceFunctions(unittest.TestCase):
         # make sure the shuffled sequence does not lose any elements
         self.bot.cache.set('123', 'test')
         self.assertEqual(self.bot.cache.get('123'), 'test')
+        self.assertTrue('123' in self.bot.cache)
+        self.bot.cache.delete('123')
+        self.assertFalse('123' in self.bot.cache)
 
 if __name__ == "__main__":
     unittest.main()
