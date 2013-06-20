@@ -1,6 +1,5 @@
 from __future__ import print_function
 import sys
-import argparse
 
 import pinger
 
@@ -58,21 +57,9 @@ config = {
 }
 
 # Change config via commandline
-parser = argparse.ArgumentParser()
-parser.add_argument("--debug",
-                    help="Make the bot spit out debug info",
-                    action="store_true")
-parser.add_argument("--file-cache",
-                    help="Do not use memcache",
-                    action="store_true")
-parser.add_argument("--memcache",
-                    help="Use memcache",
-                    action="store_true")
-
-args = parser.parse_args()
-config['debug'] = args.debug
-config['use_memcache'] = not args.file_cache
-config['use_memcache'] = args.memcache
+config['debug'] = '--debug' in sys.argv
+config['use_memcache'] = not ('--file-cache' in sys.argv)
+config['use_memcache'] = '--memcache' in sys.argv
 
 if __name__ == '__main__':
     try:
