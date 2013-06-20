@@ -42,6 +42,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.bot.cache.set('123', 'test')
         self.assertEqual(self.bot.cache.get('123'), 'test')
 
+def main():
+    pass
 
 if __name__ == "__main__":
     unittest.main()

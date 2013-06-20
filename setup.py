@@ -17,7 +17,7 @@ setup(
     ],
     classifiers=["Programming Language :: Python",
                  "Programming Language :: Python :: 2",
-                 "Programming Language :: Python :: 3",
+#                 "Programming Language :: Python :: 3",
                  "Development Status :: 2 - Pre-Alpha",
                  "Intended Audience :: Developers",
                  "Operating System :: OS Independent",
