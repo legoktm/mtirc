@@ -2,6 +2,10 @@
 Multi-Threaded IRC bot
 ======================
 
+.. image:: https://travis-ci.org/legoktm/mtirc.png?branch=master
+  :alt: Build Status
+  :target: http://travis-ci.org/legoktm/mtirc
+
 This is a multi-threaded IRC bot that was designed to connect to
 multiple networks and load multiple modules.
 An example bot would look like::
