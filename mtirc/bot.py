@@ -36,36 +36,8 @@ except ImportError:
 from six import u, string_types as stringthing
 
 from . import cache as ccache  # Naming conflict
-
-# The following regexes are from bjweeks' & MZMcBride's snitch.py
-# which is public domain
-COLOR_RE = re.compile(r'(?:\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?)')
-ACTION_RE = re.compile(r'\[\[(.+)\]\] (?P<log>.+)  \* (?P<user>.+) \*  (?P<summary>.+)')
-DIFF_RE = re.compile(r'''
-    \[\[(?P<page>.*)\]\]\        # page title
-    (?P<patrolled>!|)            # patrolled
-    (?P<new>N|)                  # new page
-    (?P<minor>M|)                # minor edit
-    (?P<bot>B|)\                 # bot edit
-    (?P<url>.*)\                 # diff url
-    \*\ (?P<user>.*?)\ \*\       # user
-    \((?P<diff>(\+|-)\d*)\)\     # diff size
-    ?(?P<summary>.*)             # edit summary
-''', re.VERBOSE)
-
-
-def parse_edit(msg):
-    msg = COLOR_RE.sub('', msg)
-    edit_match = DIFF_RE.match(msg)
-    action_match = ACTION_RE.match(msg)
-    match = edit_match or action_match
-    if not match:
-        return
-    diff = match.groupdict()
-    if not diff['summary']:
-        diff['summary'] = '[none]'
-    return diff
-
+from . import lib
+parse_edit = lib.parse_edit  # Backwards compatibility
 
 class ReceiveThread(threading.Thread):
     def __init__(self, bot):
