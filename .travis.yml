@@ -7,3 +7,7 @@ python:
 install: "python setup.py build"
 # command to run tests
 script: python setup.py test
+notifications:
+  email: false
+  irc: "chat.freenode.net##legoktm"
+  skip_join: true
