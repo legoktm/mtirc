@@ -76,7 +76,6 @@ class ReceiveThread(threading.Thread):
         self.config = bot.config
 
     def parse(self, channel, text, sender, server):
-        #This should be sub-classed
         for name in self.bot.config['modules']:
             try:
                 cont = self.bot.config['modules'][name](channel=channel,
