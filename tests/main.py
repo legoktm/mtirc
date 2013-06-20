@@ -25,10 +25,11 @@ IN THE SOFTWARE.
 import unittest
 
 from mtirc import bot
+from mtirc import cache
 from mtirc import settings
 
 
-class TestSequenceFunctions(unittest.TestCase):
+class TestBot(unittest.TestCase):
 
     def setUp(self):
         config = settings.config
@@ -37,14 +38,28 @@ class TestSequenceFunctions(unittest.TestCase):
         config['connections']['card.freenode.net']['channels'] = ['#bottest']
         self.bot = bot.Bot(config)
 
-    def test_cache(self):
-        # make sure the shuffled sequence does not lose any elements
-        self.bot.cache.set('123', 'test')
-        self.assertEqual(self.bot.cache.get('123'), 'test')
-        self.assertTrue('123' in self.bot.cache)
-        self.assertEqual(self.bot.cache.dump(), {'123': 'test', u'errors': {}})
-        self.bot.cache.delete('123')
-        self.assertFalse('123' in self.bot.cache)
+    def test_file_cache(self):
+        config = dict(settings.config)
+        config['use_memcache'] = False
+        mc = cache.Cache(config)
+        mc.set('123', 'test')
+        self.assertEqual(mc.get('123'), 'test')
+        self.assertTrue('123' in mc)
+        self.assertEqual(mc.dump(), {'123': 'test', u'errors': {}})
+        mc.delete('123')
+        self.assertFalse('123' in mc)
+
+    def test_memcache_cache(self):
+        config = dict(settings.config)
+        config['use_memcache'] = True
+        mc = cache.Cache(config)
+        self.assertTrue(mc.use_mc)  # This ensures that we're actually using memcache, not file cache
+        mc.set('123', 'test')
+        self.assertEqual(mc.get('123'), 'test')
+        self.assertTrue('123' in mc)
+        mc.delete('123')
+        self.assertFalse('123' in mc)
+
 
 if __name__ == "__main__":
     unittest.main()
