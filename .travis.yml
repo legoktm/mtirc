@@ -14,5 +14,7 @@ notifications:
     channels:
       - "chat.freenode.net##legoktm"
     skip_join: true
+    on_success: change
+    on_failure: change
 services:
   - memcached
