@@ -4,6 +4,6 @@ python:
   - "3.2"
   - "3.3"
 # command to install dependencies
-install: "pip install irc simplejson six"
+install: "python setup.py build"
 # command to run tests
 script: python setup.py test
