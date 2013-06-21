@@ -66,12 +66,16 @@ class LibTests(unittest.TestCase):
 
     def setUp(self):
         self.edit = u'\x0314[[\x0307Hassan Rouhani\x0314]]\x034 \x0310 \x0302http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945\x03 \x035*\x03 \x030337.98.125.156\x03 \x035*\x03 (+179) \x0310/* After the Islamic Revolution */\x03'
+        self.action = u'\x0314[[\x0307Special:Log/abusefilter\x0314]]\x034 hit\x0310 \x0302\x03 \x035*\x03 \x030382.93.10.193\x03 \x035*\x03  \x031082.93.10.193 triggered [[Special:AbuseFilter/260|filter 260]], performing the action "edit" on [[\x0302Jack Dorsey\x0310]]. Actions taken: Disallow ([[Special:AbuseLog/8932011|details]])\x03'
 
     def test_color_stripping(self):
         self.assertEqual(lib.COLOR_RE.sub('', self.edit), u'[[Hassan Rouhani]]  http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945 * 37.98.125.156 * (+179) /* After the Islamic Revolution */')
 
-    def test_parsing(self):
+    def test_edit_parsing(self):
         self.assertEqual(lib.parse_edit(self.edit), {'url': u'http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945', 'bot': u'', 'summary': u'/* After the Islamic Revolution */', 'user': u'37.98.125.156', 'new': u'', 'diff': u'+179', 'patrolled': u'', 'page': u'Hassan Rouhani', 'minor': u''})
+
+    def test_action_parsing(self):
+        self.assertEqual(lib.parse_edit(self.action), {'user': u'82.93.10.193', 'log': u'hit', 'summary': u'82.93.10.193 triggered [[Special:AbuseFilter/260|filter 260]], performing the action "edit" on [[Jack Dorsey]]. Actions taken: Disallow ([[Special:AbuseLog/8932011|details]])'})
 
 if __name__ == "__main__":
     unittest.main()
