@@ -26,6 +26,7 @@ import unittest
 
 from mtirc import bot
 from mtirc import cache
+from mtirc import lib
 from mtirc import settings
 
 
@@ -60,6 +61,17 @@ class CacheTests(unittest.TestCase):
         mc.delete('123')
         self.assertFalse('123' in mc)
 
+
+class LibTests(unittest.TestCase):
+
+    def setUp(self):
+        self.edit = u'\x0314[[\x0307Hassan Rouhani\x0314]]\x034 \x0310 \x0302http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945\x03 \x035*\x03 \x030337.98.125.156\x03 \x035*\x03 (+179) \x0310/* After the Islamic Revolution */\x03'
+
+    def test_color_stripping(self):
+        self.assertEqual(lib.COLOR_RE.sub('', self.edit), u'[[Hassan Rouhani]]  http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945 * 37.98.125.156 * (+179) /* After the Islamic Revolution */')
+
+    def test_parsing(self):
+        self.assertEqual(lib.parse_edit(self.edit), {'url': u'http://en.wikipedia.org/w/index.php?diff=560860840&oldid=560857945', 'bot': u'', 'summary': u'/* After the Islamic Revolution */', 'user': u'37.98.125.156', 'new': u'', 'diff': u'+179', 'patrolled': u'', 'page': u'Hassan Rouhani', 'minor': u''})
 
 if __name__ == "__main__":
     unittest.main()
