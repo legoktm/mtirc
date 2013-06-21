@@ -17,6 +17,7 @@ except ImportError:
 # transition between systems that have memcache
 # installed and those that don't
 
+
 class Cache:
     def __init__(self, config):
         self.config = config
