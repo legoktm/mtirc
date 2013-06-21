@@ -107,7 +107,7 @@ class Bot:
         #print e.target
         self.msg(e.target, e.arguments[0], e.source, c.server)
 
-    def debug(self, *a, *kw):
+    def debug(self, *a, **kw):
         #TODO
         pass
 
