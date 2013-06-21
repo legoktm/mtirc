@@ -29,7 +29,7 @@ from mtirc import cache
 from mtirc import settings
 
 
-class TestBot(unittest.TestCase):
+class CacheTests(unittest.TestCase):
 
     def setUp(self):
         config = settings.config
