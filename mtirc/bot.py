@@ -66,7 +66,7 @@ class ReceiveThread(threading.Thread):
                         count += 1
                         if count >= self.config['disable_on_errors']:
                             del self.bot.config['modules'][name]
-                            self.debug('The {0} module was disabled due to {1} errors.'.format(
+                            self.bot.debug('The {0} module was disabled due to {1} errors.'.format(
                                 name, count
                             ))
                         else:
@@ -108,7 +108,7 @@ class Bot:
         self.msg(e.target, e.arguments[0], e.source, c.server)
 
     def debug(self, *a, *kw):
-        #placeholder
+        #TODO
         pass
 
     def msg(self, channel, text, sender, server):
