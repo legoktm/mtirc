@@ -75,14 +75,6 @@ class ReceiveThread(threading.Thread):
                         self.bot.cache['errors'][name] = 1
 
 
-    def debug(self, msg):
-        if self.config['debug']:
-            msg = u(msg)
-            self.msg(None, 'DEBUG: ' + msg)
-
-    def msg(self, channel, text):
-        #place holder for logging
-        self.pull.put(channel, text)
 
     def run(self):
         while True:
@@ -114,6 +106,10 @@ class Bot:
         #print e.source
         #print e.target
         self.msg(e.target, e.arguments[0], e.source, c.server)
+
+    def debug(self, *a, *kw):
+        #placeholder
+        pass
 
     def msg(self, channel, text, sender, server):
         #this is mainly a placeholder for other things
