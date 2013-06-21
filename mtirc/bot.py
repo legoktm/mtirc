@@ -115,16 +115,21 @@ class Bot:
         #this is mainly a placeholder for other things
         self.push.put((channel, text, sender, server))
 
-    def queue_msg(self, channel, text):
-        self.pull.put((channel, text))
+    def queue_msg(self, channel, text, *kw):
+        d = {'channel': channel, 'text': text}
+        for k in kw:
+            d[k] = kw[k]
+        self.pull.put(d)
 
-    def send_msg(self, channel, text):
+    def send_msg(self, data):
         try:
-            self._send_msg(channel, text)
+            self._send_msg(data)
         except Exception:
             traceback.print_exc()
 
-    def _send_msg(self, channel, text):
+    def _send_msg(self, data):
+        channel = data.get('channel')
+        text = data.get('text', '')
         if not channel:
             channel = self.config['default_channel']
         d = time.time()
@@ -159,7 +164,7 @@ class Bot:
         d = self.config['connections'][server]
         username = d.get('ns_username', self.config['ns_username'])
         pw = d.get('ns_pw', self.config['ns_pw'])
-        self.send_msg('nickserv', 'identify {0} {1}'.format(username, pw))
+        self.send_msg({'channel':'nickserv', 'text':'identify {0} {1}'.format(username, pw)})
 
     def connect_to_server(self, server):
         d = self.config['connections'][server]
@@ -193,8 +198,8 @@ class Bot:
         while True:
             self.irc.process_once(timeout=0.1)
             try:
-                channel, text = self.pull.get(block=False)
-                self.send_msg(channel, text)
+                data = self.pull.get(block=False)
+                self.send_msg(data)
             except queue.Empty:
                 pass
 
