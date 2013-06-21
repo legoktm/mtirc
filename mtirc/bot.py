@@ -24,7 +24,6 @@ IN THE SOFTWARE.
 from __future__ import unicode_literals
 
 import irc.client as irclib
-import re
 import threading
 import time
 import traceback
