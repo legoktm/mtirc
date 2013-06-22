@@ -2,9 +2,8 @@
 
 from __future__ import print_function
 
-import os
-import six
 import sys
+import os
 try:
     import memcache
 except ImportError:
@@ -30,12 +29,11 @@ class Cache:
         self.filename = self.config['cache_file'] + '.cache'
         self.load()
 
-    def __contains__(self, key):
-        key = six.u(key)
+    def __contains__(self, item):
         if self.use_mc:
-            return self.mc.get(key) is not None
+            return self.mc.get(item) is not None
         else:
-            return key in self.d
+            return item in self.d
 
     def load(self):
         if os.path.exists(self.filename):
@@ -49,24 +47,21 @@ class Cache:
            pickle.dump(self.d, f)
 
     def get(self, key):
-        key = six.u(key)
         if self.use_mc:
-            return self.mc.get(key)
+            return self.mc.get(str(key))
         return self.d[key]
 
     def set(self, key, value, save=True):
-        key = six.u(key)
         if self.use_mc:
-            self.mc.set(key, value)
+            self.mc.set(str(key), value)
             return
         self.d[key] = value
         if save:
             self.save()
 
     def delete(self, key, save=True):
-        key = six.u(key)
         if self.use_mc:
-            self.mc.delete(key)
+            self.mc.delete(str(key))
             return
         del self.d[key]
         if save:
