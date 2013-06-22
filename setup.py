@@ -14,7 +14,7 @@ setup(
         "irc >= 8.3",
         "simplejson",
         "six",
-        "python-memcached",
+#        "python-memcached",
     ],
     classifiers=["Programming Language :: Python",
                  "Programming Language :: Python :: 2",
