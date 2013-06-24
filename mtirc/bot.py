@@ -47,7 +47,7 @@ class ReceiveThread(threading.Thread):
         self.config = bot.config
 
     def parse(self, channel, text, sender, server):
-        for name in self.bot.config['modules']:
+        for name in dict(self.bot.config['modules']):
             try:
                 cont = self.bot.config['modules'][name](channel=channel,
                                                         text=text,
