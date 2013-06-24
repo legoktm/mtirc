@@ -57,7 +57,7 @@ class ReceiveThread(threading.Thread):
                                   server=server,
                                   bot=self.bot,
                                   )
-                if not cont:
+                if cont == 'abort':  # Seems hackish, but works...
                     break
             except Exception:
                 traceback.print_exc()
