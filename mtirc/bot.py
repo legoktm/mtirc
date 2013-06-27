@@ -34,7 +34,7 @@ except ImportError:
 
 from six import u, string_types as stringthing
 
-from . import cache as ccache  # Naming conflict
+from . import cache
 from . import lib
 parse_edit = lib.parse_edit  # Backwards compatibility
 
@@ -96,7 +96,7 @@ class Bot:
         self.delay = 0  # When the last message was sent to the server
         self.config = config
         self.delayTime = self.config['delay_time']
-        self.cache = ccache.Cache(self.config)
+        self.cache = cache.Cache(self.config)
         self.init_cache()
 
     def init_cache(self):
