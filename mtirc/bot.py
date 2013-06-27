@@ -47,14 +47,16 @@ class ReceiveThread(threading.Thread):
         self.config = bot.config
 
     def parse(self, channel, text, sender, server):
-        for name in self.bot.config['modules']:
+        mods = dict(self.bot.config['modules'])
+        # So when we disable a module we aren't modifying what we're iterating over
+        for name in mods:
             try:
-                cont = self.bot.config['modules'][name](channel=channel,
-                                                        text=text,
-                                                        sender=sender,
-                                                        server=server,
-                                                        bot=self.bot,
-                                                        )
+                cont = mods[name](channel=channel,
+                                  text=text,
+                                  sender=sender,
+                                  server=server,
+                                  bot=self.bot,
+                                  )
                 if cont == 'abort':  # Seems hackish, but works...
                     break
             except Exception:
