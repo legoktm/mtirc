@@ -34,7 +34,7 @@ config = {
               },
 
     # How many seconds to wait in between reconnection attempts
-    'reconnection_interval': 5,
+    'reconnection_interval': 1,
 
     # NickServ information
     'authenticate': False,
