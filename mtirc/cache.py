@@ -38,7 +38,7 @@ class Cache:
             self.thing = redis.StrictRedis(host=self.config['host'], port=self.config['port'])
         else:
             self.thing = None
-        self.filename = self.config['cache_file'] + '.cache'
+        self.filename = self.config['file'] + '.cache'
         self.load()
 
     def __contains__(self, item):
