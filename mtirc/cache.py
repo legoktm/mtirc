@@ -9,9 +9,15 @@ try:
 except ImportError:
     memcache = False
 try:
+    import redis
+except ImportError:
+    redis = False
+try:
     import cPickle as pickle
 except ImportError:
     import pickle
+
+import settings  # For constants
 
 # The point of this module is so we can easily
 # transition between systems that have memcache
@@ -20,18 +26,24 @@ except ImportError:
 
 class Cache:
     def __init__(self, config):
+        """
+        config is settings.config['cache'], not the entire
+        config file.
+        """
         self.config = config
-        self.use_mc = memcache and self.config['use_memcache']
-        if self.use_mc:
-            self.mc = memcache.Client([self.config['mc_host']])
+        self.type = self.config['type']
+        if self.type == settings.CACHE_MEMCACHE and memcache:
+            self.thing = memcache.Client([self.config['host']])
+        elif self.type == settings.CACHE_REDIS and redis:
+            self.thing = redis.StrictRedis(host=self.config['host'], port=self.config['port'])
         else:
-            self.mc = None
+            self.thing = None
         self.filename = self.config['cache_file'] + '.cache'
         self.load()
 
     def __contains__(self, item):
-        if self.use_mc:
-            return self.mc.get(item) is not None
+        if self.thing:
+            return self.thing.get(item) is not None
         else:
             return item in self.d
 
@@ -44,24 +56,24 @@ class Cache:
 
     def save(self):
         with open(self.filename, 'w') as f:
-           pickle.dump(self.d, f)
+            pickle.dump(self.d, f)
 
     def get(self, key):
-        if self.use_mc:
-            return self.mc.get(str(key))
+        if self.thing:
+            return self.thing.get(str(key))
         return self.d[key]
 
     def set(self, key, value, save=True):
-        if self.use_mc:
-            self.mc.set(str(key), value)
+        if self.thing:
+            self.thing.set(str(key), value)
             return
         self.d[key] = value
         if save:
             self.save()
 
     def delete(self, key, save=True):
-        if self.use_mc:
-            self.mc.delete(str(key))
+        if self.thing:
+            self.thing.delete(str(key))
             return
         del self.d[key]
         if save:

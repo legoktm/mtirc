@@ -3,6 +3,12 @@ import sys
 
 import pinger
 
+# Set up some constants
+CACHE_PICKLE = 1
+CACHE_MEMCACHE = 2
+CACHE_REDIS = 3
+
+
 config = {
 
     # Connection info
@@ -21,12 +27,11 @@ config = {
     # How many processing threads to start
     'threads': 5,
 
-    # Cache file
-    'cache_file': 'cache',
-
-    # Whether to use memcache if possible
-    'use_memcache': True,
-    'mc_host': '127.0.0.1',
+    # Cache settings
+    'cache': {'type': CACHE_PICKLE,
+              'file': 'cache',
+              'host': '127.0.0.1',
+              },
 
     # How many seconds to wait in between reconnection attempts
     'reconnection_interval': 5,
@@ -58,8 +63,6 @@ config = {
 
 # Change config via commandline
 config['debug'] = '--debug' in sys.argv
-config['use_memcache'] = not ('--file-cache' in sys.argv)
-config['use_memcache'] = '--memcache' in sys.argv
 
 if __name__ == '__main__':
     try:

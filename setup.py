@@ -15,6 +15,7 @@ setup(
         "simplejson",
         "six",
         "python-memcached",
+        "redis",
     ],
     classifiers=["Programming Language :: Python",
                  "Programming Language :: Python :: 2",

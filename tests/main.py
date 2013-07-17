@@ -35,14 +35,13 @@ class CacheTests(unittest.TestCase):
     def setUp(self):
         config = settings.config
         config['nick'] = 'unittestbot'
-        config['use_memcache'] = False
         config['connections']['card.freenode.net']['channels'] = ['#bottest']
         self.bot = bot.Bot(config)
 
     def test_file_cache(self):
         config = dict(settings.config)
-        config['use_memcache'] = False
-        mc = cache.Cache(config)
+        config['cache']['type'] = settings.CACHE_PICKLE
+        mc = cache.Cache(config['cache'])
         mc.set('123', 'test')
         self.assertEqual(mc.get('123'), 'test')
         self.assertTrue('123' in mc)
@@ -52,9 +51,9 @@ class CacheTests(unittest.TestCase):
 
     def test_memcache_cache(self):
         config = dict(settings.config)
-        config['use_memcache'] = True
-        mc = cache.Cache(config)
-        self.assertTrue(mc.use_mc)  # This ensures that we're actually using memcache, not file cache
+        config['cache']['type'] = settings.CACHE_MEMCACHE
+        mc = cache.Cache(config['cache'])
+        #self.assertTrue(mc.use_mc)  # This ensures that we're actually using memcache, not file cache
         mc.set('123', 'test')
         self.assertEqual(mc.get('123'), 'test')
         self.assertTrue('123' in mc)

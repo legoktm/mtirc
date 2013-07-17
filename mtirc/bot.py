@@ -96,7 +96,7 @@ class Bot:
         self.delay = 0  # When the last message was sent to the server
         self.config = config
         self.delayTime = self.config['delay_time']
-        self.cache = cache.Cache(self.config)
+        self.cache = cache.Cache(self.config['cache'])
         self.init_cache()
 
     def init_cache(self):
