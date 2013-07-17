@@ -60,6 +60,17 @@ class CacheTests(unittest.TestCase):
         mc.delete('123')
         self.assertFalse('123' in mc)
 
+    def test_redis_cache(self):
+        config = dict(settings.config)
+        config['cache']['type'] = settings.CACHE_REDIS
+        config['cache']['port'] = 6379  # redis default
+        r = cache.Cache(config['cache'])
+        r.set('123', 'test')
+        self.assertEqual(r.get('123'), 'test')
+        self.assertTrue('123' in r)
+        r.delete('123')
+        self.assertFalse('123' in r)
+
 
 class LibTests(unittest.TestCase):
 
