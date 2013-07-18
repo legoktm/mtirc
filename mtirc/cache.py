@@ -35,7 +35,10 @@ class Cache:
         if self.type == settings.CACHE_MEMCACHE and memcache:
             self.thing = memcache.Client([self.config['host']])
         elif self.type == settings.CACHE_REDIS and redis:
-            self.thing = redis.StrictRedis(host=self.config['host'], port=self.config['port'])
+            self.thing = redis.StrictRedis(
+                host=self.config['host'],
+                port=self.config.get('port', 6379),
+                )
         else:
             self.thing = None
         self.filename = self.config['file'] + '.cache'
