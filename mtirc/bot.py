@@ -35,8 +35,10 @@ except ImportError:
 from six import u, string_types as stringthing
 
 from . import cache
+from . import hooks
 from . import lib
 parse_edit = lib.parse_edit  # Backwards compatibility
+
 
 class ReceiveThread(threading.Thread):
     def __init__(self, bot):
@@ -47,6 +49,12 @@ class ReceiveThread(threading.Thread):
         self.config = bot.config
 
     def parse(self, channel, text, sender, server):
+        hooks.run_event('on_msg',
+                        channel=channel,
+                        text=text,
+                        sender=sender,
+                        bot=self.bot,
+                        )
         mods = dict(self.bot.config['modules'])
         # So when we disable a module we aren't modifying what we're iterating over
         for name in mods:
@@ -76,8 +84,6 @@ class ReceiveThread(threading.Thread):
                     else:
                         self.bot.cache['errors'][name] = 1
 
-
-
     def run(self):
         while True:
             channel, text, sender, server = self.queue.get()
@@ -98,6 +104,7 @@ class Bot:
         self.delayTime = self.config['delay_time']
         self.cache = cache.Cache(self.config['cache'])
         self.init_cache()
+        hooks.run_event('init', bot=self)
 
     def init_cache(self):
         self.cache['errors'] = {}
@@ -111,10 +118,12 @@ class Bot:
 
     def debug(self, *a, **kw):
         #TODO
+        hooks.run_event('debug', **kw)
         pass
 
     def msg(self, channel, text, sender, server):
         #this is mainly a placeholder for other things
+        text = text.strip()
         self.push.put((channel, text, sender, server))
 
     def queue_msg(self, channel, text, *kw):
@@ -130,6 +139,7 @@ class Bot:
             traceback.print_exc()
 
     def _send_msg(self, data):
+        hooks.run_event('pre_send_msg', **data)
         channel = data.get('channel')
         text = data.get('text', '')
         if not channel:
@@ -141,6 +151,7 @@ class Bot:
         if not isinstance(text, stringthing):
             text = u(text)
         self.servers[self.config['default_network']].privmsg(channel, text)
+        hooks.run_event('post_send_msg', **data)
 
     def get_version(self):
         # This should be improved
@@ -152,6 +163,7 @@ class Bot:
         Replies to VERSION and PING requests and relays DCC requests
         to the on_dccchat method.
         """
+        hooks.run_event('on_ctcp', connection=c, event=e)
         nick = e.source.nick
         if e.arguments[0] == "VERSION":
             c.ctcp_reply(nick, "VERSION " + self.get_version())
@@ -181,6 +193,7 @@ class Bot:
         if 'channels' in d:
             for channel in d['channels']:
                 self.servers[server].join(channel)
+        hooks.run_event('connected', server=server)
 
     def run(self):
         for i in range(0, self.config['threads']):
