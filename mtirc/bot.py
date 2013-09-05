@@ -193,7 +193,7 @@ class Bot:
         if 'channels' in d:
             for channel in d['channels']:
                 self.servers[server].join(channel)
-        hooks.run_event('connected', server=server)
+        hooks.run_event('connected', server=server, bot=self)
 
     def run(self):
         for i in range(0, self.config['threads']):
