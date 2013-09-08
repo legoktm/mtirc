@@ -54,6 +54,7 @@ class ReceiveThread(threading.Thread):
                         text=text,
                         sender=sender,
                         bot=self.bot,
+                        server=server
                         )
         mods = dict(self.bot.config['modules'])
         # So when we disable a module we aren't modifying what we're iterating over
