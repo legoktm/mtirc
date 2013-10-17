@@ -212,7 +212,10 @@ class Bot:
             self.connect_to_server(server)
 
         while True:
-            self.irc.process_once(timeout=0.1)
+            try:
+                self.irc.process_once(timeout=0.1)
+            except UnicodeDecodeError:
+                pass  # unknown error in irclib?
             try:
                 data = self.pull.get(block=False)
                 self.send_msg(data)
