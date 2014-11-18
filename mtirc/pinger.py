@@ -27,6 +27,6 @@ IN THE SOFTWARE.
 
 
 def run(**kw):
-    if kw['text'].startswith('!ping'):
+    if kw['text'].startswith(('!ping', "!test")):
         kw['bot'].queue_msg(kw['channel'], 'pong')
     return True
